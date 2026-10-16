@@ -1,0 +1,11 @@
+# .NET build files
+**/bin/
+**/obj/
+
+# Docker image archives
+*.tar
+
+# AWS CLI installer files
+awscliv2.zip
+awscliv2.zipcurl
+aws/

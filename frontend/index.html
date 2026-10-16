@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AWS DevOps Sample</title>
+</head>
+<body>
+
+    <h1>AWS DevOps Sample Application</h1>
+
+    <h2>Products</h2>
+
+    <button onclick="loadProducts()">Load Products</button>
+
+    <ul id="products"></ul>
+
+    <script>
+        async function loadProducts() {
+            const response = await fetch('/api/products');
+            const products = await response.json();
+
+            const productList = document.getElementById('products');
+
+            productList.innerHTML = '';
+
+            products.forEach(product => {
+                const item = document.createElement('li');
+
+                item.textContent =
+                    product.name + " - ₹" + product.price;
+
+                productList.appendChild(item);
+            });
+        }
+    </script>
+
+</body>
+</html>
