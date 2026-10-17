@@ -1,5 +1,4 @@
-name: Build and Push to ECR
-
+name: CI-CD Pipeline
 on:
   push:
     branches:
@@ -57,3 +56,47 @@ jobs:
 
           docker push $REGISTRY/aws-devops-sample-backend:$IMAGE_TAG
           docker push $REGISTRY/aws-devops-sample-backend:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-2
+
+      - name: Deploy frontend
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          REGISTRY=$ACCOUNT_ID.dkr.ecr.ap-southeast-2.amazonaws.com
+
+          COMMAND_ID=$(aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --instance-ids "${{ vars.FRONTEND_INSTANCE_ID }}" \
+            --parameters '{"commands":["aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin '$REGISTRY'","docker pull '$REGISTRY'/aws-devops-sample-frontend:latest","docker rm -f aws-devops-frontend-container || true","docker run -d --name aws-devops-frontend-container -p 80:80 '$REGISTRY'/aws-devops-sample-frontend:latest"]}' \
+            --query "Command.CommandId" \
+            --output text)
+
+          aws ssm wait command-executed \
+            --command-id "$COMMAND_ID" \
+            --instance-id "${{ vars.FRONTEND_INSTANCE_ID }}"
+
+      - name: Deploy backend
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          REGISTRY=$ACCOUNT_ID.dkr.ecr.ap-southeast-2.amazonaws.com
+
+          COMMAND_ID=$(aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --instance-ids "${{ vars.BACKEND_INSTANCE_ID }}" \
+            --parameters '{"commands":["aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin '$REGISTRY'","docker pull '$REGISTRY'/aws-devops-sample-backend:latest","docker rm -f aws-devops-backend-container || true","docker run -d --name aws-devops-backend-container -p 8080:8080 '$REGISTRY'/aws-devops-sample-backend:latest"]}' \
+            --query "Command.CommandId" \
+            --output text)
+
+          aws ssm wait command-executed \
+            --command-id "$COMMAND_ID" \
+            --instance-id "${{ vars.BACKEND_INSTANCE_ID }}"
