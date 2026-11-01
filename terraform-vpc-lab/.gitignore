@@ -1,0 +1,14 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+
+# Terraform plan files
+*.tfplan
+plan.txt
+
+# Local packages / installers
+*.deb
+*.rpm
