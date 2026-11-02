@@ -30,15 +30,15 @@ resource "aws_db_instance" "postgres" {
   max_allocated_storage = 50
   storage_type          = "gp3"
 
-  db_name  = "devopsdb"
-  username = "devopsadmin"
-  password = var.db_password
-  db_subnet_group_name = aws_db_subnet_group.postgres.name
+  db_name                = "devopsdb"
+  username               = "devopsadmin"
+  password               = var.db_password
+  db_subnet_group_name   = aws_db_subnet_group.postgres.name
   vpc_security_group_ids = [var.database_security_group_id]
 
-  publicly_accessible    = false
-  skip_final_snapshot    = true
-  deletion_protection    = false
+  publicly_accessible     = false
+  skip_final_snapshot     = true
+  deletion_protection     = false
   backup_retention_period = 0
 
   tags = {

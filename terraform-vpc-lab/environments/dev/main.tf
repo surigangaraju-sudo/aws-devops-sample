@@ -4,9 +4,9 @@ module "networking" {
 module "compute" {
   source = "../../modules/compute"
 
-  ami_id             = "ami-0a4d112af46bb0d62"
-  subnet_id          = module.networking.public_subnet_id
-  security_group_id  = module.networking.web_security_group_id
+  ami_id            = "ami-0a4d112af46bb0d62"
+  subnet_id         = module.networking.public_subnet_id
+  security_group_id = module.networking.web_security_group_id
 }
 module "database" {
   source = "../../modules/database"
@@ -17,7 +17,7 @@ module "database" {
     module.networking.private_subnet_a_id,
     module.networking.private_subnet_b_id
   ]
-  db_password = var.db_password
+  db_password                = var.db_password
   database_security_group_id = module.networking.database_security_group_id
 }
 module "load_balancer" {
