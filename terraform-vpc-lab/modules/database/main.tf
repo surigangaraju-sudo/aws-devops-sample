@@ -21,6 +21,11 @@ resource "aws_db_subnet_group" "postgres" {
 
 resource "aws_db_instance" "postgres" {
   identifier = "aws-devops-postgres"
+  lifecycle {
+    ignore_changes = [
+      password
+    ]
+  }
 
   engine         = "postgres"
   engine_version = "17"
