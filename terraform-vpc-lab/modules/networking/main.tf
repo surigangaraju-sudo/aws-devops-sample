@@ -64,6 +64,7 @@ resource "aws_security_group" "web" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -74,4 +75,13 @@ resource "aws_security_group" "web" {
   tags = {
     Name = "AWS-DevOps-Terraform-Web-SG"
   }
+}
+resource "aws_security_group_rule" "backend_from_alb" {
+  type                     = "ingress"
+  from_port                = 8080
+  to_port                  = 8080
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.web.id
+  source_security_group_id = aws_security_group.web.id
+  description              = "Backend from ALB"
 }

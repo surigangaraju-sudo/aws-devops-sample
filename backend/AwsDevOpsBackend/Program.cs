@@ -12,26 +12,27 @@ var secretsClient = new AmazonSecretsManagerClient();
 var secretResponse = await secretsClient.GetSecretValueAsync(
     new GetSecretValueRequest
     {
-        SecretId = "aws-devops-sample/rds"
+        SecretId = "aws-devops-terraform/rds"
     });
 
-// Parse the secret as JSON without forcing every value to be a string
+// Parse the RDS connection details from Secrets Manager
 using var secretJson = JsonDocument.Parse(secretResponse.SecretString!);
 
-var username = secretJson.RootElement
-    .GetProperty("username")
-    .GetString();
+var root = secretJson.RootElement;
 
-var password = secretJson.RootElement
-    .GetProperty("password")
-    .GetString();
+var username = root.GetProperty("username").GetString();
+var password = root.GetProperty("password").GetString();
+var host = root.GetProperty("host").GetString();
+var port = root.GetProperty("port").GetInt32();
+var database = root.GetProperty("database").GetString();
 
 var connectionString =
-    $"Host=aws-devops-sample-db.c5qas24gk1y5.ap-southeast-2.rds.amazonaws.com;" +
-    $"Port=5432;" +
-    $"Database=awsdevopsdb;" +
+    $"Host={host};" +
+    $"Port={port};" +
+    $"Database={database};" +
     $"Username={username};" +
-    $"Password={password};";
+    $"Password={password};" +
+    $"Ssl Mode=Require;";
 
 app.MapGet("/api/products", async () =>
 {

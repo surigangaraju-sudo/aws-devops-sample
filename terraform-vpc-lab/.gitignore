@@ -12,3 +12,4 @@ plan.txt
 # Local packages / installers
 *.deb
 *.rpm
+tfplan
